@@ -1,0 +1,79 @@
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+
+local Window = Rayfield:CreateWindow({
+    Name = "Script Gua",
+    LoadingTitle = "Loading...",
+    LoadingSubtitle = "by Aji",
+    ConfigurationSaving = {
+        Enabled = true,
+        FolderName = nil,
+        FileName = "MyConfig"
+    },
+    Discord = {
+        Enabled = false,
+        Invite = "",
+        RememberJoins = true
+    },
+    KeySystem = false,
+    KeySettings = {
+        Title = "Key System",
+        Subtitle = "Enter Key",
+        Note = "Masukkan key di sini",
+        FileName = "KeyConfig",
+        SaveKey = true,
+        GrabKeyFromSite = false,
+        Key = {"indonesia"}
+    }
+})
+local Tab = Window:CreateTab("Main", 4483362458)
+
+Tab:CreateButton({
+   Name = "Teleport ke Tempat Rahasia",
+   Callback = function()
+      game.Players.LocalPlayer.Character:MoveTo(Vector3.new(0, 10, 0))
+   end
+})
+-- hello_night: NITF Chop (Key)
+local plr = game:GetService("Players").LocalPlayer
+local rs = game:GetService("ReplicatedStorage")
+local auto = true
+
+-- Daftar nama alat yang valid untuk menebang
+local tools = { "Old Axe", "Good Axe", "Ice Axe", "Strong Axe", "Chainsaw" }
+
+local function getTool()
+  for _, tname in ipairs(tools) do
+    local t = plr.Backpack:FindFirstChild(tname) or plr.Character:FindFirstChild(tname)
+    if t then return t end
+  end
+  return nil
+end
+
+local function findTree()
+  local nearest, dist = nil, math.huge
+  for _, m in ipairs(workspace.Map:GetDescendants()) do
+    if m:IsA("Model") and m:FindFirstChild("Health") then
+      local pos = m:GetModelCFrame().p
+      local d = (plr.Character.PrimaryPart.Position - pos).Magnitude
+      if d < dist then dist, nearest = d, m end
+    end
+  end
+  return nearest
+end
+
+spawn(function()
+  while auto do
+    local tool = getTool()
+    local tree = findTree()
+    if tool and tree then
+      tool.Parent = plr.Character
+      -- invoke remote damage call (sesuai bug exploit)
+      pcall(function()
+        rs.Remotes.ToolDamageObject:InvokeServer(tree, tool, tree:GetModelCFrame(), "dummyID")
+      end)
+    end
+    task.wait(0.5)
+  end
+end)
+
+print("NITF Chop loaded. Set auto = false to stop.")
